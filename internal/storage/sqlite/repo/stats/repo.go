@@ -64,6 +64,8 @@ func GetByChatID(ctx context.Context, chatID int64) ([]*StatsDTO, error) {
 		FROM "stats" AS s
 		INNER JOIN "user" AS u
 			ON s.user_id = u.user_id
+		INNER JOIN "user_chat" AS uc 
+			ON s.user_id = uc.user_id
 		WHERE s.chat_id = ?
 		ORDER BY s.dinahu_count DESC`
 
