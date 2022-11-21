@@ -2,6 +2,7 @@ package stats
 
 import (
 	"context"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	"github.com/jmoiron/sqlx"
 )
@@ -60,14 +61,14 @@ func GetByChatID(ctx context.Context, chatID int64) ([]*StatsDTO, error) {
 	var data []*StatsDTO
 
 	query := `
-		SELECT s.*, u.username
-		FROM "stats" AS s
-		INNER JOIN "user" AS u
-			ON s.user_id = u.user_id
-		INNER JOIN "user_chat" AS uc 
-			ON s.user_id = uc.user_id
-		WHERE s.chat_id = ?
-		ORDER BY s.dinahu_count DESC`
+	SELECT s.*, u.username 
+	FROM "stats" AS s 
+	INNER JOIN "user" AS u 
+		ON s.user_id = u.user_id 
+	INNER JOIN "user_chat" AS uc 
+		ON s.user_id = uc.user_id 
+	WHERE uc.chat_id = ? AND s.chat_id = uc.chat_id 
+	ORDER BY s.dinahu_count DESC`
 
 	err := sqlite.GetDB().SelectContext(ctx, &data, query, chatID)
 	if err != nil {
