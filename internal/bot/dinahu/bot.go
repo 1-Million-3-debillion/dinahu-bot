@@ -4,7 +4,7 @@ import (
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/register"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/remove"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/sendnahu"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/stat"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/stats"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -30,7 +30,7 @@ func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 		case "start", "run":
 			msg.Text = "Да ди ты наху"
 		case "stats":
-			msg = stat.Handler(update)
+			msg = stats.Handler(update)
 		case "help":
 			msg.Text = "Ди наху со своим /help"
 		case "sendnahu":
