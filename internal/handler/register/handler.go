@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/chat"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -16,6 +17,7 @@ const (
 	addUserFailed     string = "не удалось зарегистрировать пользователя: %v"
 	addChatFailed     string = "не удалось зарегистрировать чат: %v"
 	addUserChatFailed string = "не удалось связать юзера с чатом: %v"
+	addStatsFailed    string = "не удалось добавить статистику: %v"
 )
 
 func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
@@ -40,6 +42,13 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 		ChatID: modelChat.ChatID,
 	}
 
+	modelStats := stats.Stats{
+		ID:          uuid.NewV4().String(),
+		UserID:      modelUser.UserID,
+		ChatID:      modelChat.ChatID,
+		DinahuCount: 0,
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -62,6 +71,7 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 
 		has, err := userChat.HasUserInChat(ctx, modelUser.UserID, modelChat.ChatID)
 		if err != nil {
+			_ = tx.Rollback()
 			msg.Text = err.Error()
 			return msg
 		}
@@ -72,6 +82,11 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 		case false:
 			if err = modelUserChat.Add(ctx, tx); err != nil {
 				msg.Text = fmt.Sprintf(addUserChatFailed, err)
+				return msg
+			}
+
+			if err = modelStats.Add(ctx, tx); err != nil {
+				msg.Text = fmt.Sprintf(addStatsFailed, err)
 				return msg
 			}
 		}

@@ -3,7 +3,7 @@ package stats
 import (
 	"context"
 	"fmt"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"time"
 )
@@ -14,7 +14,7 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	data, err := userChat.GetByChatID(ctx, update.Message.Chat.ID)
+	data, err := stats.GetByChatID(ctx, update.Message.Chat.ID)
 	if err != nil {
 		msg.Text = fmt.Sprintf("не удалось получить статистику: %v", err)
 		return msg

@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"time"
 )
 
 const (
 	deleteUserFailed string = "не удалось удалить пользователя: %v"
+	dbQueryFailed    string = "ошибка на стороне базы: %v"
 )
 
 func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
@@ -20,10 +21,20 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	modelUser, err := user.GetByID(ctx, update.Message.From.ID)
+	has, err := userChat.HasUserInChat(ctx, update.Message.From.ID, update.Message.Chat.ID)
 	if err != nil {
-		msg.Text = "ты не зарегистрирован ди наху"
+		msg.Text = fmt.Sprintf(dbQueryFailed, err)
 		return msg
+	}
+
+	if !has {
+		msg.Text = "ты не зареган ди наху"
+		return msg
+	}
+
+	modelUserChat := userChat.UserChat{
+		UserID: update.Message.From.ID,
+		ChatID: update.Message.Chat.ID,
 	}
 
 	tx, err := sqlite.SerializeTransaction(ctx)
@@ -32,7 +43,7 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 		return msg
 	}
 
-	if err = modelUser.Delete(ctx, tx); err != nil {
+	if err = modelUserChat.DeleteUserFromChat(ctx, tx); err != nil {
 		msg.Text = fmt.Sprintf(deleteUserFailed, err)
 		return msg
 	}

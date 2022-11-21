@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"math/rand"
 	"time"
@@ -32,7 +32,7 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 
 	modelUser := data[rand.Intn(len(data))]
 
-	modelUserChat := userChat.UserChat{
+	modelStats := stats.Stats{
 		UserID: modelUser.UserID,
 		ChatID: update.Message.Chat.ID,
 	}
@@ -43,7 +43,7 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 		return msg
 	}
 
-	if err = modelUserChat.AddDinahu(ctx, tx); err != nil {
+	if err = modelStats.Update(ctx, tx); err != nil {
 		msg.Text = "Не удалось послать наху"
 		return msg
 	}
