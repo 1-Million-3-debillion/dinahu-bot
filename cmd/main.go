@@ -1,110 +1,23 @@
 package main
 
 import (
-	"database/sql"
-	"encoding/json"
-	"log"
-	"os"
-	"sync"
-
+	"github.com/1-Million-3-debillion/dinahu-bot/config"
+	initialize "github.com/1-Million-3-debillion/dinahu-bot/init"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/bot/dinahu"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	_ "github.com/mattn/go-sqlite3"
+	"log"
 )
-
-type Config struct {
-	DinahuToken string `json:"dinahu_token"`
-}
-
-var (
-	cfg     Config
-	onceCfg sync.Once
-)
-
-var (
-	db     *sql.DB
-	onceDb sync.Once
-)
-
-func GetConfig() *Config {
-	onceCfg.Do(func() {
-		data, err := os.ReadFile("config.json")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if err = json.Unmarshal(data, &cfg); err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	return &cfg
-}
-
-func GetDb() *sql.DB {
-	onceDb.Do(func() {
-		var err error
-		db, err = sql.Open("sqlite3", "dinahu.db")
-		if err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	return db
-}
-
-func Migration() {
-	query := `
-		CREATE TABLE IF NOT EXISTS "user" (
-			"user_id" INTEGER UNIQUE NOT NULL,
-			"first_name" TEXT,
-			"last_name" TEXT,
-			"username" TEXT
-		);
-		
-		CREATE TABLE IF NOT EXISTS "chat" (
-			"chat_id" INTEGER NOT NULL UNIQUE,
-			"name" TEXT
-		);
-
-		CREATE TABLE IF NOT EXISTS "user_chat" (
-			"id" TEXT NOT NULL UNIQUE,
-			"user_id" INTEGER NOT NULL,
-			"chat_id" INTGER NOT NULL
-		);
-		`
-
-	_, err := GetDb().Exec(query)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-type User struct {
-	UserID    int64
-	FirstName string
-	LastName  string
-	Username  string
-}
-
-type Chat struct {
-	ChatID int64
-	Name   string
-}
-
-type UserChat struct {
-	ID     string
-	UserID int64
-	ChatID int64
-}
 
 func init() {
-	GetConfig()
-	GetDb()
-	Migration()
+	config.GetConfig()
+	sqlite.GetDB()
+	initialize.Migration("./internal/storage/sqlite/migration/")
 }
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI(GetConfig().DinahuToken)
+	bot, err := tgbotapi.NewBotAPI(config.GetConfig().DinahuToken)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -118,38 +31,8 @@ func main() {
 
 	updates := bot.GetUpdatesChan(u)
 
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-		if !update.Message.IsCommand() {
-			continue
-		}
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-
-		switch update.Message.Command() {
-		case "register":
-			// TODO : зарегать юзера наху
-			msg.Text = "тут будет регистрация юзеров"
-		case "delete":
-			// TODO : удалить юзера с бд
-			msg.Text = "ди наху отсюда ты удален"
-		case "start", "run":
-			// TODO: выбрать рандомного юзера и послать его наху
-			msg.Text = "Да ди ты наху"
-		case "stats":
-			// TODO: статистику посланных наху юзеров
-			msg.Text = "тут будет статистика ди наху пон"
-		case "help":
-			msg.Text = "Ди наху со своим /help"
-		default:
-			continue
-		}
-
-		if _, err := bot.Send(msg); err != nil {
-			log.Panic(err)
-		}
+	err = dinahu.Run(bot, updates)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
