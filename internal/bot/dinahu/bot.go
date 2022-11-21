@@ -48,7 +48,8 @@ func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 		case "sendnahu":
 			msg = sendnahu.Handler(update)
 		default:
-			msg.Text = "Не пон тя попробуй /help"
+			msg.ReplyToMessageID = update.Message.MessageID
+			msg.Text = "Ты понимаешь что я не понимаю? попробуй /help"
 		}
 
 		_, err = bot.Send(msg)
