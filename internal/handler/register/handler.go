@@ -18,8 +18,10 @@ const (
 	addUserChatFailed string = "не удалось связать юзера с чатом: %v"
 )
 
-func Handler(update tgbotapi.Update) (string, error) {
-	msg := "Зарегистрировал тебя а теперь ди наху"
+func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Зарегистрировал тебя а теперь ди наху")
+	msg.ReplyToMessageID = update.Message.MessageID
+
 	modelUser := user.User{
 		UserID:    update.Message.From.ID,
 		FirstName: update.Message.From.FirstName,
@@ -43,36 +45,42 @@ func Handler(update tgbotapi.Update) (string, error) {
 
 	tx, err := sqlite.SerializeTransaction(ctx)
 	if err != nil {
-		return "", err
+		msg.Text = err.Error()
+		return msg
 	}
 
 	if err = modelUser.Add(ctx, tx); err != nil {
-		return "", fmt.Errorf(addUserFailed, err)
+		msg.Text = fmt.Sprintf(addUserFailed, err)
+		return msg
 	}
 
-	if update.Message.Chat.Type != "private" {
+	if update.Message.Chat.ID != update.Message.From.ID {
 		if err = modelChat.Add(ctx, tx); err != nil {
-			return "", fmt.Errorf(addChatFailed, err)
+			msg.Text = fmt.Sprintf(addChatFailed, err)
+			return msg
 		}
-	}
 
-	has, err := modelUserChat.HasUserInChat(ctx, modelUser.UserID, modelChat.ChatID)
-	if err != nil {
-		return "", err
-	}
+		has, err := userChat.HasUserInChat(ctx, modelUser.UserID, modelChat.ChatID)
+		if err != nil {
+			msg.Text = err.Error()
+			return msg
+		}
 
-	switch has {
-	case true:
-		msg = "Ты уже зарегистрирован тут ди наху"
-	case false:
-		if err = modelUserChat.Add(ctx, tx); err != nil {
-			return "", fmt.Errorf(addUserChatFailed, err)
+		switch has {
+		case true:
+			msg.Text = "Ты уже зарегистрирован тут ди наху"
+		case false:
+			if err = modelUserChat.Add(ctx, tx); err != nil {
+				msg.Text = fmt.Sprintf(addUserChatFailed, err)
+				return msg
+			}
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		return "", err
+		msg.Text = err.Error()
+		return msg
 	}
 
-	return msg, nil
+	return msg
 }

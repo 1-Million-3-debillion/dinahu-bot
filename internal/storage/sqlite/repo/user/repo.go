@@ -49,15 +49,31 @@ func (u *User) Delete(ctx context.Context, tx *sqlx.Tx) error {
 	return nil
 }
 
+func GetByID(ctx context.Context, id int64) (*User, error) {
+	var model User
+
+	query := `
+		SELECT *
+		FROM "user"
+		WHERE "user_id" = $1`
+
+	err := sqlite.GetDB().GetContext(ctx, &model, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model, nil
+}
+
 func GetByChatID(ctx context.Context, chatID int64) ([]*User, error) {
 	var data []*User
 
 	query := `
-		SELECT *
+		SELECT u.*
 		FROM "user" AS u
 		INNER JOIN "user_chat" AS uc
 			ON u.user_id = uc.user_id
-		WHERE "uc.chat_id" = $1`
+		WHERE uc.chat_id = $1`
 
 	err := sqlite.GetDB().SelectContext(ctx, &data, query, chatID)
 	if err != nil {

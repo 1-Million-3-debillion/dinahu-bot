@@ -2,6 +2,9 @@ package dinahu
 
 import (
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/register"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/remove"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/sendnahu"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/stat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -21,22 +24,17 @@ func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 
 		switch update.Message.Command() {
 		case "register":
-			msg.ReplyToMessageID = update.Message.MessageID
-			msg.Text, err = register.Handler(update)
-			if err != nil {
-				msg.Text = err.Error()
-			}
+			msg = register.Handler(update)
 		case "delete":
-			// TODO : удалить юзера с бд
-			msg.Text = "ди наху отсюда ты удален"
+			msg = remove.Handler(update)
 		case "start", "run":
-			// TODO: выбрать рандомного юзера и послать его наху
 			msg.Text = "Да ди ты наху"
 		case "stats":
-			// TODO: статистику посланных наху юзеров
-			msg.Text = "тут будет статистика ди наху пон"
+			msg = stat.Handler(update)
 		case "help":
 			msg.Text = "Ди наху со своим /help"
+		case "sendnahu":
+			msg = sendnahu.Handler(update)
 		default:
 			msg.Text = "Не пон тя попробуй /help"
 		}
