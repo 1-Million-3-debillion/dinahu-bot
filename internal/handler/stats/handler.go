@@ -20,6 +20,11 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 		return msg
 	}
 
+	if len(data) == 0 {
+		msg.Text = "Статистика пустая епт /sendnahu"
+		return msg
+	}
+
 	for i, v := range data {
 		msg.Text += fmt.Sprintf("%v: @%s был послан %v раз\n", i+1, v.Username, v.DinahuCount)
 	}

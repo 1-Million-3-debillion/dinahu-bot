@@ -81,8 +81,10 @@ func HasUserInChat(ctx context.Context, userID int64, chatID int64) (bool, error
 	query := `
 		SELECT EXISTS (
 			SELECT 1
-			FROM "user_chat"
-		    WHERE "user_id" = ? AND "chat_id" = ?
+			FROM "user_chat" AS uc 
+			INNER JOIN "user" AS u 
+				ON uc.user_id = u.user_id
+		    WHERE uc.user_id = ? AND uc.chat_id = ?
 		);`
 
 	err := sqlite.GetDB().GetContext(ctx, &has, query, userID, chatID)

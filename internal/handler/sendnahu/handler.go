@@ -25,13 +25,8 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 		return msg
 	}
 
-	if len(data) == 0 {
-		msg.Text = "Сначало зарегайся епт /register"
-		return msg
-	}
-
-	if len(data) == 1 {
-		msg.Text = "Должно быть зарегистрированно 2+ человек"
+	if len(data) <= 1 {
+		msg.Text = "Должно быть зарегистрированно 2+ человек /register"
 		return msg
 	}
 
