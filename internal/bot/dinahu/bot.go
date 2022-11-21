@@ -8,6 +8,18 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+const help string = `/register - Зарегистрироваться
+
+/sendnahu - Послать рандомного пользователя
+
+/stats - Статистика посланных пользователей
+
+/delete - Удалиться и бот больше не будет вас посылать
+
+/help - Хз вообще что это
+
+Все ди наху`
+
 func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 	var err error
 
@@ -32,7 +44,7 @@ func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 		case "stats":
 			msg = stats.Handler(update)
 		case "help":
-			msg.Text = "Ди наху со своим /help"
+			msg.Text = help
 		case "sendnahu":
 			msg = sendnahu.Handler(update)
 		default:
