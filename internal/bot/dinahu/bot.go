@@ -33,6 +33,7 @@ func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 		}
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		msg.DisableNotification = true
 
 		switch update.Message.Command() {
 		case "register":
