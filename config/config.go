@@ -10,8 +10,9 @@ import (
 const cfgPath string = "config.json"
 
 type Config struct {
-	DinahuToken string `json:"dinahu_token"`
-	DbName      string `json:"db_name"`
+	DinahuToken      string `json:"dinahu_token"`
+	DbName           string `json:"db_name"`
+	MillionDebillion int64  `json:"million_debillion"`
 }
 
 var (

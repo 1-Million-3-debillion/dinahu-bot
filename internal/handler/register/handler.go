@@ -2,7 +2,8 @@ package register
 
 import (
 	"context"
-	"fmt"
+	"time"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/chat"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
@@ -10,17 +11,13 @@ import (
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 const (
-	addUserFailed     string = "не удалось зарегистрировать пользователя: %v"
-	addChatFailed     string = "не удалось зарегистрировать чат: %v"
-	addUserChatFailed string = "не удалось связать юзера с чатом: %v"
-	addStatsFailed    string = "не удалось добавить статистику: %v"
+	errorMessage string = "Что то пошло не так. Админы скоро пофиксят"
 )
 
-func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
+func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Зарегистрировал тебя а теперь ди наху")
 	msg.ReplyToMessageID = update.Message.MessageID
 
@@ -54,26 +51,26 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 
 	tx, err := sqlite.SerializeTransaction(ctx)
 	if err != nil {
-		msg.Text = err.Error()
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if err = modelUser.Add(ctx, tx); err != nil {
-		msg.Text = fmt.Sprintf(addUserFailed, err)
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if update.Message.Chat.ID != update.Message.From.ID {
 		if err = modelChat.Add(ctx, tx); err != nil {
-			msg.Text = fmt.Sprintf(addChatFailed, err)
-			return msg
+			msg.Text = errorMessage
+			return msg, err
 		}
 
 		has, err := userChat.HasUserInChat(ctx, modelUser.UserID, modelChat.ChatID)
 		if err != nil {
 			_ = tx.Rollback()
-			msg.Text = err.Error()
-			return msg
+			msg.Text = errorMessage
+			return msg, err
 		}
 
 		switch has {
@@ -81,21 +78,21 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 			msg.Text = "Ты уже зарегистрирован тут ди наху"
 		case false:
 			if err = modelUserChat.Add(ctx, tx); err != nil {
-				msg.Text = fmt.Sprintf(addUserChatFailed, err)
-				return msg
+				msg.Text = errorMessage
+				return msg, err
 			}
 
 			if err = modelStats.Add(ctx, tx); err != nil {
-				msg.Text = fmt.Sprintf(addStatsFailed, err)
-				return msg
+				msg.Text = errorMessage
+				return msg, err
 			}
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		msg.Text = err.Error()
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
-	return msg
+	return msg, nil
 }

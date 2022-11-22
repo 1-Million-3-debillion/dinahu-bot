@@ -2,19 +2,18 @@ package remove
 
 import (
 	"context"
-	"fmt"
+	"time"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"time"
 )
 
 const (
-	deleteUserFailed string = "не удалось удалить пользователя: %v"
-	dbQueryFailed    string = "ошибка на стороне базы: %v"
+	errorMessage string = "Что то пошло не так. Админы скоро пофиксят"
 )
 
-func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
+func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "ну и ди наху отсюда.")
 	msg.ReplyToMessageID = update.Message.MessageID
 
@@ -23,13 +22,13 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 
 	has, err := userChat.HasUserInChat(ctx, update.Message.From.ID, update.Message.Chat.ID)
 	if err != nil {
-		msg.Text = fmt.Sprintf(dbQueryFailed, err)
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if !has {
 		msg.Text = "ты не зареган ди наху"
-		return msg
+		return msg, nil
 	}
 
 	modelUserChat := userChat.UserChat{
@@ -39,19 +38,19 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 
 	tx, err := sqlite.SerializeTransaction(ctx)
 	if err != nil {
-		msg.Text = err.Error()
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if err = modelUserChat.DeleteUserFromChat(ctx, tx); err != nil {
-		msg.Text = fmt.Sprintf(deleteUserFailed, err)
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		msg.Text = err.Error()
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
-	return msg
+	return msg, nil
 }

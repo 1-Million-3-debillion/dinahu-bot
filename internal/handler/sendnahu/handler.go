@@ -3,15 +3,20 @@ package sendnahu
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"time"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"math/rand"
-	"time"
 )
 
-func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
+const (
+	errorMessage string = "Что то пошло не так. Админы скоро пофиксят"
+)
+
+func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 	rand.Seed(time.Now().UnixNano())
@@ -21,13 +26,13 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 
 	data, err := user.GetByChatID(ctx, update.Message.Chat.ID)
 	if err != nil {
-		msg.Text = "Не удалось получить список пользователей"
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if len(data) <= 1 {
 		msg.Text = "Должно быть зарегистрированно 2+ человек /register"
-		return msg
+		return msg, nil
 	}
 
 	modelUser := data[rand.Intn(len(data))]
@@ -39,21 +44,21 @@ func Handler(update tgbotapi.Update) tgbotapi.MessageConfig {
 
 	tx, err := sqlite.SerializeTransaction(ctx)
 	if err != nil {
-		msg.Text = err.Error()
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if err = modelStats.Update(ctx, tx); err != nil {
-		msg.Text = "Не удалось послать наху"
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		msg.Text = err.Error()
-		return msg
+		msg.Text = errorMessage
+		return msg, err
 	}
 
 	msg.Text = fmt.Sprintf("@%s ди наху", modelUser.Username)
 
-	return msg
+	return msg, nil
 }
