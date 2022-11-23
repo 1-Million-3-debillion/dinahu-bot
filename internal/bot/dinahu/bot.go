@@ -52,6 +52,8 @@ func HandleUpdates(updates tgbotapi.UpdatesChannel) error {
 			sendErrToAdmins(update, err)
 		}
 
+		msg.DisableNotification = true
+
 		_, err = GetBot().Send(msg)
 		if err != nil {
 			return err
