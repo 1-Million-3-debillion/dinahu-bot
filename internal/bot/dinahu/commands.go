@@ -20,7 +20,6 @@ func handleUserMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) 
 	var err error
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	msg.DisableNotification = true
 
 	switch update.Message.Command() {
 	case "register":
@@ -57,6 +56,8 @@ func handleUserMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) 
 		msg.Text = "Ты понимаешь что я не понимаю? попробуй /help"
 	}
 
+	msg.DisableNotification = true
+
 	return msg, err
 }
 
@@ -64,7 +65,6 @@ func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error)
 	var err error
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	msg.DisableNotification = true
 
 	switch update.Message.Command() {
 	case "chats":
@@ -82,6 +82,8 @@ func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error)
 		msg.ReplyToMessageID = update.Message.MessageID
 		msg.Text = "Ты втираешь мне какую то дичь"
 	}
+
+	msg.DisableNotification = true
 
 	return msg, err
 }
