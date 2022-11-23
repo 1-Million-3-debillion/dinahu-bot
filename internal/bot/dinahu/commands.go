@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/1-Million-3-debillion/dinahu-bot/config"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/chats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/dayInfo"
 	adminStats "github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/stats"
@@ -77,7 +78,7 @@ func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error)
 		msg, err = dayInfo.Handler(update)
 	case "help":
 		msg.ReplyToMessageID = update.Message.MessageID
-		msg.Text = adminHelp
+		msg.Text = config.GetConfig().Help
 	default:
 		msg.ReplyToMessageID = update.Message.MessageID
 		msg.Text = "Ты втираешь мне какую то дичь"
