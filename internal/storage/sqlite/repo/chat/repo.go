@@ -68,11 +68,16 @@ func GetByUser(ctx context.Context, value string) ([]*ChatDTO, error) {
 		    ON c.chat_id = uc.chat_id 
 		INNER JOIN "user" AS u 
 			ON u.user_id = uc.user_id
-		WHERE u.user_id = ? OR LOWER(u.username) LIKE ?
+		WHERE u.user_id = ? 
+		   OR LOWER(u.username) LIKE ? 
+		   OR LOWER(u.first_name) LIKE ? 
+		   OR LOWER(u.last_name) LIKE ? 
 		GROUP BY uc.chat_id
 		ORDER BY registered DESC;`
 
-	err := sqlite.GetDB().SelectContext(ctx, &data, query, value, "%"+strings.ToLower(value)+"%")
+	v := strings.ToLower(value)
+
+	err := sqlite.GetDB().SelectContext(ctx, &data, query, v, v, v, v)
 	if err != nil {
 		return nil, err
 	}

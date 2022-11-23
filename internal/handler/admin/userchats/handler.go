@@ -12,7 +12,7 @@ import (
 )
 
 func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Чаты где зарегистрирован пользователь\n")
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -28,7 +28,10 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 		value += v + " "
 	}
 
-	data, err := chat.GetByUser(ctx, value[:len(value)-1])
+	value = value[:len(value)-1]
+	msg.Text = fmt.Sprintf("Чаты где зарегистрирован пользователь %s:\n\n", value)
+
+	data, err := chat.GetByUser(ctx, value)
 	if err != nil {
 		msg.Text = admin.ErrorMessage
 		return msg, err
