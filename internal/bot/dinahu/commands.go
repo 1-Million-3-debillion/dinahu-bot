@@ -7,6 +7,7 @@ import (
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/chats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/dayInfo"
 	adminStats "github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/stats"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/userchats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/users"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/register"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/remove"
@@ -67,6 +68,8 @@ func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error)
 	switch update.Message.Command() {
 	case "chats":
 		msg, err = chats.Handler(update)
+	case "userchats":
+		msg, err = userchats.Handler(update)
 	case "users":
 		msg, err = users.Handler(update)
 	case "stats":

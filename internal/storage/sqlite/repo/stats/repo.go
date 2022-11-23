@@ -20,6 +20,8 @@ type StatsDTO struct {
 	ChatID      int64  `db:"chat_id"`
 	DinahuCount int64  `db:"dinahu_count"`
 	Username    string `db:"username"`
+	FirstName   string `db:"first_name"`
+	LastName    string `db:"last_name"`
 }
 
 func (s *Stats) Add(ctx context.Context, tx *sqlx.Tx) error {
@@ -61,7 +63,7 @@ func GetByChatID(ctx context.Context, chatID int64) ([]*StatsDTO, error) {
 	var data []*StatsDTO
 
 	query := `
-	SELECT s.*, u.username 
+	SELECT s.*, u.username, u.first_name, u.last_name
 	FROM "stats" AS s 
 	INNER JOIN "user" AS u 
 		ON s.user_id = u.user_id 

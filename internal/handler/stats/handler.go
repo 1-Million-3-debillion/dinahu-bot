@@ -28,7 +28,22 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	}
 
 	for i, v := range data {
-		msg.Text += fmt.Sprintf("%v: @%s был послан %v раз\n", i+1, v.Username, v.DinahuCount)
+		if v.Username != "" {
+			msg.Text += fmt.Sprintf("%v: @%s был послан %v раз\n", i+1, v.Username, v.DinahuCount)
+			continue
+		}
+		if v.FirstName != "" && v.LastName != "" {
+			msg.Text += fmt.Sprintf("%v: %s %s был послан %v раз\n", i+1, v.FirstName, v.LastName, v.DinahuCount)
+			continue
+		}
+		if v.FirstName != "" {
+			msg.Text += fmt.Sprintf("%v: %s был послан %v раз\n", i+1, v.FirstName, v.DinahuCount)
+			continue
+		}
+		if v.LastName != "" {
+			msg.Text += fmt.Sprintf("%v: %s был послан %v раз\n", i+1, v.LastName, v.DinahuCount)
+			continue
+		}
 	}
 
 	return msg, nil

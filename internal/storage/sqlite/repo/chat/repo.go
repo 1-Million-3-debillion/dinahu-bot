@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 type Chat struct {
@@ -50,6 +51,28 @@ func GetAll(ctx context.Context) ([]*ChatDTO, error) {
 		ORDER BY registered DESC;`
 
 	err := sqlite.GetDB().SelectContext(ctx, &data, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func GetByUser(ctx context.Context, value string) ([]*ChatDTO, error) {
+	var data []*ChatDTO
+
+	query := `
+		SELECT c.*, COUNT(uc.chat_id) AS registered 
+		FROM "chat" AS c 
+		INNER JOIN "user_chat" AS uc 
+		    ON c.chat_id = uc.chat_id 
+		INNER JOIN "user" AS u 
+			ON u.user_id = uc.user_id
+		WHERE u.user_id = ? OR LOWER(u.username) LIKE ?
+		GROUP BY uc.chat_id
+		ORDER BY registered DESC;`
+
+	err := sqlite.GetDB().SelectContext(ctx, &data, query, value, "%"+strings.ToLower(value)+"%")
 	if err != nil {
 		return nil, err
 	}
