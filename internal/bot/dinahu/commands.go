@@ -51,7 +51,7 @@ func handleUserMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) 
 	case "sendnahu", "nahu":
 		msg, err = sendnahu.Handler(update)
 	case "errortest":
-		msg.Text = "сука"
+		msg.Text = "Ты понимаешь что я не понимаю? попробуй /help"
 		err = errors.New("ошибка наху")
 	default:
 		msg.ReplyToMessageID = update.Message.MessageID

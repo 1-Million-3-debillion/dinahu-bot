@@ -3,11 +3,13 @@ package dinahu
 import (
 	"fmt"
 	"github.com/1-Million-3-debillion/dinahu-bot/config"
+	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+	"time"
 )
 
-const errorMsg string = "МУЖЫКИ Я НЕ СПРАВИЛСЯ ПОМОГИТЕ\nchat_id: %v\nchat_name: %s\nuser_id: %v\nusername: @%s\ncommand: %s\nerror: %s\n#error"
+const errorMsg string = "МУЖЫКИ Я НЕ СПРАВИЛСЯ ПОМОГИТЕ\nchat_id: %v\nchat_name: %s\nuser_id: %v\nusername: @%s\ncommand: %s\ntime: %v UTC\nerror: %s\n#error"
 
 func sendMsgToAdmins(text string) {
 	msg := tgbotapi.NewMessage(config.GetConfig().MillionDebillion, text)
@@ -25,6 +27,7 @@ func sendErrToAdmins(update tgbotapi.Update, err error) {
 		update.Message.From.ID,
 		update.Message.From.UserName,
 		update.Message.Text,
+		time.Now().UTC().Format(tools.TimeLayout),
 		err.Error(),
 	)
 
