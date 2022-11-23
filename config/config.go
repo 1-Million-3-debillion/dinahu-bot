@@ -13,7 +13,6 @@ type Config struct {
 	DinahuToken      string `json:"dinahu_token"`
 	DbName           string `json:"db_name"`
 	MillionDebillion int64  `json:"million_debillion"`
-	Help             string `json:"help"`
 }
 
 var (
