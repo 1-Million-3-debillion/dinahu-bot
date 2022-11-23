@@ -3,6 +3,7 @@ package sendnahu
 import (
 	"context"
 	"fmt"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler"
 	"math/rand"
 	"time"
 
@@ -10,10 +11,6 @@ import (
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-)
-
-const (
-	errorMessage string = "Что то пошло не так. Админы скоро пофиксят"
 )
 
 func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
@@ -26,7 +23,7 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 
 	data, err := user.GetByChatID(ctx, update.Message.Chat.ID)
 	if err != nil {
-		msg.Text = errorMessage
+		msg.Text = handler.ErrorMessage
 		return msg, err
 	}
 
@@ -44,17 +41,17 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 
 	tx, err := sqlite.SerializeTransaction(ctx)
 	if err != nil {
-		msg.Text = errorMessage
+		msg.Text = handler.ErrorMessage
 		return msg, err
 	}
 
 	if err = modelStats.Update(ctx, tx); err != nil {
-		msg.Text = errorMessage
+		msg.Text = handler.ErrorMessage
 		return msg, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		msg.Text = errorMessage
+		msg.Text = handler.ErrorMessage
 		return msg, err
 	}
 

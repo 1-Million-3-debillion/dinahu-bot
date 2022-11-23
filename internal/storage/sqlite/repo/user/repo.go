@@ -11,6 +11,16 @@ type User struct {
 	FirstName string `db:"first_name"`
 	LastName  string `db:"last_name"`
 	Username  string `db:"username"`
+	CreatedAt int64  `db:"created_at"`
+}
+
+type UserDTO struct {
+	UserID    int64  `db:"user_id"`
+	FirstName string `db:"first_name"`
+	LastName  string `db:"last_name"`
+	Username  string `db:"username"`
+	CreatedAt int64  `db:"created_at"`
+	ChatName  string `db:"chat_name"`
 }
 
 func (u *User) Add(ctx context.Context, tx *sqlx.Tx) error {
@@ -19,8 +29,9 @@ func (u *User) Add(ctx context.Context, tx *sqlx.Tx) error {
 			"user_id",
 			"first_name",
 			"last_name",
-		    "username"
-		) VALUES (:user_id, :first_name, :last_name, :username)
+		    "username",
+			"created_at"
+		) VALUES (:user_id, :first_name, :last_name, :username, :created_at)
 		ON CONFLICT ("user_id")
 		DO UPDATE SET "first_name" = :first_name,
 		              "last_name" = :last_name,
@@ -65,14 +76,16 @@ func GetByID(ctx context.Context, id int64) (*User, error) {
 	return &model, nil
 }
 
-func GetByChatID(ctx context.Context, chatID int64) ([]*User, error) {
-	var data []*User
+func GetByChatID(ctx context.Context, chatID int64) ([]*UserDTO, error) {
+	var data []*UserDTO
 
 	query := `
-		SELECT u.*
+		SELECT u.*, c.name AS chat_name
 		FROM "user" AS u
 		INNER JOIN "user_chat" AS uc
 			ON u.user_id = uc.user_id
+		INNER JOIN "chat" AS c 
+			ON uc.chat_id = c.chat_id
 		WHERE uc.chat_id = $1`
 
 	err := sqlite.GetDB().SelectContext(ctx, &data, query, chatID)

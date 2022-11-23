@@ -1,30 +1,33 @@
 package dinahu
 
 import (
-	"errors"
-	"fmt"
+	"log"
+	"sync"
 
 	"github.com/1-Million-3-debillion/dinahu-bot/config"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/register"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/remove"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/sendnahu"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/stats"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-const help string = `/register - Зарегистрироваться
+var (
+	bot     *tgbotapi.BotAPI
+	botOnce sync.Once
+)
 
-/sendnahu - Послать рандомного пользователя
+func GetBot() *tgbotapi.BotAPI {
+	botOnce.Do(func() {
+		var err error
+		bot, err = tgbotapi.NewBotAPI(config.GetConfig().DinahuToken)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-/stats - Статистика посланных пользователей
+		log.Printf("Authorized on account %s", bot.Self.UserName)
+	})
 
-/delete - Удалиться и бот больше не будет вас посылать
+	return bot
+}
 
-/help - Хз вообще что это
-
-Все ди наху`
-
-func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
+func HandleUpdates(updates tgbotapi.UpdatesChannel) error {
 	var err error
 
 	for update := range updates {
@@ -36,7 +39,7 @@ func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 			continue
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		msg := tgbotapi.MessageConfig{}
 
 		switch update.Message.Chat.ID {
 		case config.GetConfig().MillionDebillion:
@@ -46,76 +49,14 @@ func Run(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) error {
 		}
 
 		if err != nil {
-			text := fmt.Sprintf("chat_id: %v\nchat_name: %s\nuser_id: %v\nusername: %s\ncommand: %s\nerror: %s",
-				update.Message.Chat.ID,
-				update.Message.Chat.Title,
-				update.Message.From.ID,
-				update.Message.From.UserName,
-				update.Message.Text,
-				err.Error(),
-			)
-
-			errMsg := tgbotapi.NewMessage(config.GetConfig().MillionDebillion, text)
-			_, err = bot.Send(errMsg)
-			if err != nil {
-				return err
-			}
+			sendErrToAdmins(update, err)
 		}
 
-		_, err = bot.Send(msg)
+		_, err = GetBot().Send(msg)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
-}
-
-func handleUserMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	var err error
-
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	msg.DisableNotification = true
-
-	switch update.Message.Command() {
-	case "register":
-		msg, err = register.Handler(update)
-	case "delete":
-		msg, err = remove.Handler(update)
-	case "start", "run":
-		msg.Text = "Да ди ты наху"
-	case "stats":
-		msg, err = stats.Handler(update)
-	case "help":
-		msg.Text = help
-	case "sendnahu":
-		msg, err = sendnahu.Handler(update)
-	case "errortest":
-		msg.Text = "сука"
-		err = errors.New("ошибка наху")
-	default:
-		msg.ReplyToMessageID = update.Message.MessageID
-		msg.Text = "Ты понимаешь что я не понимаю? попробуй /help"
-	}
-
-	return msg, err
-}
-
-func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	var err error
-
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	msg.DisableNotification = true
-
-	switch update.Message.Command() {
-	case "chats":
-		msg.Text = "тут будет список всех чатов"
-	case "users":
-		msg.Text = "тут будет список всех юзеров по chat_id"
-	default:
-		msg.ReplyToMessageID = update.Message.MessageID
-		msg.Text = "Я хуй его знает"
-	}
-
-	return msg, err
 }

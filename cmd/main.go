@@ -14,24 +14,16 @@ func init() {
 	config.GetConfig()
 	sqlite.GetDB()
 	initialize.Migration("./internal/storage/sqlite/migration/")
+	initialize.Bot()
 }
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI(config.GetConfig().DinahuToken)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	//bot.Debug = true
-
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
-	updates := bot.GetUpdatesChan(u)
+	updates := dinahu.GetBot().GetUpdatesChan(u)
 
-	err = dinahu.Run(bot, updates)
+	err := dinahu.HandleUpdates(updates)
 	if err != nil {
 		log.Fatal(err)
 	}

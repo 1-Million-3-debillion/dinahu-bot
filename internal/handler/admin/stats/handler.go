@@ -3,7 +3,9 @@ package stats
 import (
 	"context"
 	"fmt"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
@@ -16,14 +18,26 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	data, err := stats.GetByChatID(ctx, update.Message.Chat.ID)
+	arr := strings.Split(update.Message.Text, " ")
+	if len(arr) != 2 {
+		msg.Text = "Неверно введена команда\nПопробуйте так: /stats chat_id(int64)"
+		return msg, nil
+	}
+
+	chatID, err := strconv.ParseInt(arr[1], 10, 64)
 	if err != nil {
-		msg.Text = handler.ErrorMessage
+		msg.Text = fmt.Sprintf("вторым аргументов должен быть chat_id(int64)")
+		return msg, nil
+	}
+
+	data, err := stats.GetByChatID(ctx, chatID)
+	if err != nil {
+		msg.Text = admin.ErrorMessage
 		return msg, err
 	}
 
 	if len(data) == 0 {
-		msg.Text = "Статистика пустая епт /sendnahu"
+		msg.Text = "Статистика пустая"
 		return msg, nil
 	}
 
