@@ -3,14 +3,33 @@ package sendnahu
 import (
 	"context"
 	"fmt"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler"
 	"math/rand"
 	"time"
+
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler"
 
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
+
+var (
+	variants = []string{
+		"я б вас послал, да вижу — вы оттуда!",
+		"ди наху",
+		"кет наху",
+		"ди наху пон",
+		"иди нахуй",
+		"хуй на иди",
+		"наху ди",
+		"Что делать, если вас послали Нахуй?\n\n" +
+			"Всерьёз и надолго обидеться на своего собеседника, занеся его в личный чёрный список.\n\n\n",
+		"вам билет на пешее эротическое путешествие",
+		"ушел в мир биологии пон",
+		"на три веселые буквы ди пон",
+		"ди подумай",
+	}
 )
 
 func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
@@ -55,7 +74,7 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 		return msg, err
 	}
 
-	msg.Text = fmt.Sprintf("@%s ди наху", modelUser.Username)
+	msg.Text = fmt.Sprintf("@%s %s", modelUser.Username, variants[rand.Intn(len(variants))])
 
 	return msg, nil
 }
