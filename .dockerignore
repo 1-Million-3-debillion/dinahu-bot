@@ -1,0 +1,8 @@
+*.md
+.git
+.idea
+.vscode
+.gitignore
+config-example.json
+docker-compose.yml
+Dockerfile
