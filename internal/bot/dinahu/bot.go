@@ -39,6 +39,10 @@ func HandleUpdates(updates tgbotapi.UpdatesChannel) error {
 			continue
 		}
 
+		if update.Message.Chat.ID == update.Message.From.ID {
+			continue
+		}
+
 		msg := tgbotapi.MessageConfig{}
 
 		switch update.Message.Chat.ID {
