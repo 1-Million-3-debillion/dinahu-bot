@@ -5,6 +5,4 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - /var/dinahu-bot-db:/app/*.db
     restart: always
