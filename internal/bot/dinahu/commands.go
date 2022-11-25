@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/chats"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/chatsInfo"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/dayInfo"
 	adminStats "github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/stats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/userchats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/users"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/usersInfo"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/register"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/remove"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/sendnahu"
@@ -76,6 +78,10 @@ func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error)
 		msg, err = adminStats.Handler(update)
 	case "dayinfo":
 		msg, err = dayInfo.Handler(update)
+	case "chatsinfo":
+		msg, err = chatsInfo.Handler(update)
+	case "usersinfo":
+		msg, err = usersInfo.Handler(update)
 	case "help":
 		msg.ReplyToMessageID = update.Message.MessageID
 		msg.Text = adminHelp

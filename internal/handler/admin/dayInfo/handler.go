@@ -35,7 +35,7 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 
 	msg.Text = fmt.Sprintf(
 		"За сегодня %s зарегистрировалось %v чатов и %v пользователей",
-		from.Format("2006-01-02"),
+		from.Format(tools.DayLayout),
 		model.Chats,
 		model.Users,
 	)

@@ -85,6 +85,22 @@ func GetByUser(ctx context.Context, value string) ([]*ChatDTO, error) {
 	return data, nil
 }
 
+func GetByPeriod(ctx context.Context, from int64, to int64) ([]*Chat, error) {
+	var data []*Chat
+
+	query := `
+		SELECT *
+		FROM "chat"
+		WHERE "created_at" >= $1 AND "created_at" < $2`
+
+	err := sqlite.GetDB().SelectContext(ctx, &data, query, from, to)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func HasByID(ctx context.Context, id int64) (bool, error) {
 	var has bool
 
