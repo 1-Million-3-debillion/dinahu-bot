@@ -24,7 +24,7 @@ func Handler(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 	}
 
 	if len(data) == 0 {
-		msg.Text = "Статистика пустая епт /sendnahu"
+		msg.Text = "Зарегайтесь епта /register"
 		return nil
 	}
 
