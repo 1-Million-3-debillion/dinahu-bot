@@ -1,18 +1,17 @@
 package main
 
 import (
-	"github.com/1-Million-3-debillion/dinahu-bot/config"
+	"log"
+
 	initialize "github.com/1-Million-3-debillion/dinahu-bot/init"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/bot/dinahu"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 )
 
 func init() {
-	config.GetConfig()
-	sqlite.GetDB()
+	initialize.Config()
+	initialize.DB()
 	initialize.Migration("./internal/storage/sqlite/migration/")
 	initialize.Bot()
 }
@@ -25,6 +24,6 @@ func main() {
 
 	err := dinahu.HandleUpdates(updates)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("HandleUpdates() failed: %v\n", err)
 	}
 }

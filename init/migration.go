@@ -1,16 +1,17 @@
 package init
 
 import (
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
-	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 	"log"
 	"os"
+
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
+	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 )
 
-const failMigration string = "%s failed: %v"
+const fail string = "%s failed: %v\n"
 
 func Migration(dir string) {
-	log.Println("initialize migration")
+	log.Println("Инитиализирую миграцию наху")
 
 	files, err := tools.GetFiles(dir)
 	if err != nil {
@@ -20,18 +21,18 @@ func Migration(dir string) {
 	db := sqlite.GetDB()
 
 	for _, file := range files {
-		query, err := os.ReadFile(dir + file)
-		if err != nil {
-			log.Fatalf(failMigration, file, err)
-		}
+		path := dir + file
 
-		log.Println(file)
+		query, err := os.ReadFile(path)
+		if err != nil {
+			log.Fatalf(fail, file, err)
+		}
 
 		_, err = db.Exec(string(query))
 		if err != nil {
-			log.Fatalf(failMigration, file, err)
+			log.Fatalf(fail, file, err)
 		}
 	}
 
-	log.Println("initialized migration")
+	log.Println("Инитиализировал миграцию наху")
 }

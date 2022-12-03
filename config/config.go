@@ -18,17 +18,18 @@ type Config struct {
 var (
 	cfg     Config
 	onceCfg sync.Once
+	fail    string = "GetConfig() failed: %v\n"
 )
 
 func GetConfig() *Config {
 	onceCfg.Do(func() {
 		data, err := os.ReadFile(cfgPath)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf(fail, err)
 		}
 
 		if err = json.Unmarshal(data, &cfg); err != nil {
-			log.Fatal(err)
+			log.Fatalf(fail, err)
 		}
 	})
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/chats"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/chatsInfo"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin/dayInfo"
@@ -19,17 +20,15 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func handleUserMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func handleUserMessages(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 	var err error
-
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 	switch update.Message.Command() {
 	case "register":
 		var has bool
 		has, err = chat.HasByID(context.Background(), update.Message.Chat.ID)
 		if err != nil {
-			return msg, err
+			return err
 		}
 
 		if !has {
@@ -40,17 +39,17 @@ func handleUserMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) 
 			))
 		}
 
-		msg, err = register.Handler(update)
+		err = register.Handler(update, msg)
 	case "delete":
-		msg, err = remove.Handler(update)
+		err = remove.Handler(update, msg)
 	case "start", "run":
 		msg.Text = "Да ди ты наху"
 	case "stats":
-		msg, err = stats.Handler(update)
+		err = stats.Handler(update, msg)
 	case "help":
 		msg.Text = help
 	case "sendnahu", "nahu":
-		msg, err = sendnahu.Handler(update)
+		err = sendnahu.Handler(update, msg)
 	case "errortest":
 		msg.Text = "Ты понимаешь что я не понимаю? попробуй /help"
 		err = errors.New("ошибка наху")
@@ -59,29 +58,27 @@ func handleUserMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) 
 		msg.Text = "Ты понимаешь что я не понимаю? попробуй /help"
 	}
 
-	return msg, err
+	return err
 }
 
-func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
+func handleAdminMessages(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 	var err error
-
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 	switch update.Message.Command() {
 	case "chats":
-		msg, err = chats.Handler(update)
+		err = chats.Handler(update, msg)
 	case "userchats":
-		msg, err = userchats.Handler(update)
+		err = userchats.Handler(update, msg)
 	case "users":
-		msg, err = users.Handler(update)
+		err = users.Handler(update, msg)
 	case "stats":
-		msg, err = adminStats.Handler(update)
+		err = adminStats.Handler(update, msg)
 	case "dayinfo":
-		msg, err = dayInfo.Handler(update)
+		err = dayInfo.Handler(update, msg)
 	case "chatsinfo":
-		msg, err = chatsInfo.Handler(update)
+		err = chatsInfo.Handler(update, msg)
 	case "usersinfo":
-		msg, err = usersInfo.Handler(update)
+		err = usersInfo.Handler(update, msg)
 	case "help":
 		msg.ReplyToMessageID = update.Message.MessageID
 		msg.Text = adminHelp
@@ -90,5 +87,5 @@ func handleAdminMessages(update tgbotapi.Update) (tgbotapi.MessageConfig, error)
 		msg.Text = "Ты втираешь мне какую то дичь"
 	}
 
-	return msg, err
+	return err
 }

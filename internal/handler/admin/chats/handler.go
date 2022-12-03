@@ -3,15 +3,16 @@ package chats
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/chat"
 	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"time"
 )
 
-func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Список чатов:\n\n")
+func Handler(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
+	msg.Text += "Список чатов:\n\n"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -19,13 +20,13 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	data, err := chat.GetAll(ctx)
 	if err != nil {
 		msg.Text = admin.ErrorMessage
-		return msg, err
+		return err
 	}
 
 	location, err := time.LoadLocation(tools.Location)
 	if err != nil {
 		msg.Text = admin.ErrorMessage
-		return msg, err
+		return err
 	}
 
 	for _, v := range data {
@@ -40,5 +41,5 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 
 	msg.Text += fmt.Sprintf("chats: %v", len(data))
 
-	return msg, nil
+	return nil
 }

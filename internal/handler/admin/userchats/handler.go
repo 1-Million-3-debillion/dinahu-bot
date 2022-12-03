@@ -3,24 +3,23 @@ package userchats
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/chat"
 	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"strings"
-	"time"
 )
 
-func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-
+func Handler(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	arr := strings.Split(update.Message.Text, " ")
 	if len(arr) < 2 {
 		msg.Text = "Неверно введена команда\nПопробуйте так: /userchats user_id/username"
-		return msg, nil
+		return nil
 	}
 
 	var value string
@@ -34,18 +33,18 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	data, err := chat.GetByUser(ctx, value)
 	if err != nil {
 		msg.Text = admin.ErrorMessage
-		return msg, err
+		return err
 	}
 
 	if len(data) == 0 {
 		msg.Text = "Не нашел ниче босс"
-		return msg, nil
+		return nil
 	}
 
 	location, err := time.LoadLocation(tools.Location)
 	if err != nil {
 		msg.Text = admin.ErrorMessage
-		return msg, err
+		return err
 	}
 
 	for _, v := range data {
@@ -58,5 +57,5 @@ func Handler(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 		)
 	}
 
-	return msg, nil
+	return nil
 }

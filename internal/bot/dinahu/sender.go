@@ -2,11 +2,12 @@ package dinahu
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/1-Million-3-debillion/dinahu-bot/config"
 	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
-	"time"
 )
 
 const errorMsg string = "МУЖЫКИ Я НЕ СПРАВИЛСЯ ПОМОГИТЕ\nchat_id: %v\nchat_name: %s\nuser_id: %v\nusername: @%s\ncommand: %s\ntime: %v UTC\nerror: %s\n#error"

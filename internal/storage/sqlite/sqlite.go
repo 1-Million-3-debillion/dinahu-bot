@@ -1,13 +1,14 @@
 package sqlite
 
 import (
-	"github.com/1-Million-3-debillion/dinahu-bot/config"
-	"github.com/jmoiron/sqlx"
 	"log"
 	"sync"
+
+	"github.com/1-Million-3-debillion/dinahu-bot/config"
+	"github.com/jmoiron/sqlx"
 )
 
-const failGetDB string = "GetDB() failed: %v"
+const fail string = "GetDB() failed: %v\n"
 
 var (
 	db     *sqlx.DB
@@ -19,7 +20,7 @@ func GetDB() *sqlx.DB {
 		var err error
 		db, err = sqlx.Open("sqlite3", config.GetConfig().DbName)
 		if err != nil {
-			log.Fatalf(failGetDB, err)
+			log.Fatalf(fail, err)
 		}
 	})
 

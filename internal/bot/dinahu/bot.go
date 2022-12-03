@@ -11,6 +11,7 @@ import (
 var (
 	bot     *tgbotapi.BotAPI
 	botOnce sync.Once
+	fail    string = "GetBot() failed: %v\n"
 )
 
 func GetBot() *tgbotapi.BotAPI {
@@ -18,7 +19,7 @@ func GetBot() *tgbotapi.BotAPI {
 		var err error
 		bot, err = tgbotapi.NewBotAPI(config.GetConfig().DinahuToken)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf(fail, err)
 		}
 
 		log.Printf("Authorized on account %s", bot.Self.UserName)
@@ -43,13 +44,13 @@ func HandleUpdates(updates tgbotapi.UpdatesChannel) error {
 			continue
 		}
 
-		msg := tgbotapi.MessageConfig{}
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 		switch update.Message.Chat.ID {
 		case config.GetConfig().MillionDebillion:
-			msg, err = handleAdminMessages(update)
+			err = handleAdminMessages(update, &msg)
 		default:
-			msg, err = handleUserMessages(update)
+			err = handleUserMessages(update, &msg)
 		}
 
 		if err != nil {
