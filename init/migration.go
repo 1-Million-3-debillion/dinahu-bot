@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres"
 	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 )
 
@@ -18,7 +18,7 @@ func Migration(dir string) {
 		log.Fatal(err)
 	}
 
-	db := sqlite.GetDB()
+	db := postgres.GetDB()
 
 	for _, file := range files {
 		path := dir + file

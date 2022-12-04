@@ -6,8 +6,8 @@ import (
 
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler"
 
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/userChat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -35,7 +35,7 @@ func Handler(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 		ChatID: update.Message.Chat.ID,
 	}
 
-	tx, err := sqlite.SerializeTransaction(ctx)
+	tx, err := postgres.SerializeTransaction(ctx)
 	if err != nil {
 		msg.Text = handler.ErrorMessage
 		return err

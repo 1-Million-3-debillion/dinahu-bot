@@ -11,8 +11,12 @@ const cfgPath string = "config.json"
 
 type Config struct {
 	DinahuToken      string `json:"dinahu_token"`
-	DbName           string `json:"db_name"`
 	MillionDebillion int64  `json:"million_debillion"`
+	DbUser           string `json:"db_user"`
+	DbPassword       string `json:"db_password"`
+	DbHost           string `json:"db_host"`
+	DbPort           string `json:"db_port"`
+	DbName           string `json:"db_name"`
 }
 
 var (

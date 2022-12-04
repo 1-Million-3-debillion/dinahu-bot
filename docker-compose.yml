@@ -1,8 +1,19 @@
-version: '3'
-
+version: "3.8"
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  # dinahu_bot:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: always
+
+  postgres_dinahu:
+    image: postgres:13.2-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - /var/postgres_dinahu:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     restart: always

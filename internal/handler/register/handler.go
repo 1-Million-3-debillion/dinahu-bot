@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler"
+	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/chat"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/userChat"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/chat"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/stats"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/user"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/userChat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	uuid "github.com/satori/go.uuid"
 )
@@ -20,7 +21,12 @@ func Handler(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 
 	msg.ReplyToMessageID = update.Message.MessageID
 
-	now := time.Now().Unix()
+	loc, err := time.LoadLocation(tools.Location)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now().In(loc)
 
 	modelUser := user.User{
 		UserID:    update.Message.From.ID,
@@ -52,7 +58,7 @@ func Handler(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	tx, err := sqlite.SerializeTransaction(ctx)
+	tx, err := postgres.SerializeTransaction(ctx)
 	if err != nil {
 		msg.Text = handler.ErrorMessage
 		return err

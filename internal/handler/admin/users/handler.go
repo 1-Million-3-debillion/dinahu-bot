@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/admin"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/user"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/user"
 	"github.com/1-Million-3-debillion/dinahu-bot/tools"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -49,7 +49,7 @@ func Handler(update tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 			v.FirstName,
 			v.LastName,
 			v.Username,
-			time.Unix(v.CreatedAt, 0).Format(tools.TimeLayout),
+			v.CreatedAt.Format(tools.TimeLayout),
 		)
 	}
 

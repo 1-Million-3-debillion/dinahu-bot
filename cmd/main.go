@@ -12,7 +12,7 @@ import (
 func init() {
 	initialize.Config()
 	initialize.DB()
-	initialize.Migration("./internal/storage/sqlite/migration/")
+	initialize.Migration("./internal/storage/postgres/migration/")
 	initialize.Bot()
 }
 

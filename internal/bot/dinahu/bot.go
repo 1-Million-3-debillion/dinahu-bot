@@ -54,6 +54,7 @@ func HandleUpdates(updates tgbotapi.UpdatesChannel) error {
 		}
 
 		if err != nil {
+			log.Println(err)
 			sendErrToAdmins(update, err)
 		}
 
