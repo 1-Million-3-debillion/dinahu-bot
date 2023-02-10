@@ -1,5 +1,9 @@
 {
     "dinahu_token": "",
+    "db_user": "",
+    "db_password": "",
+    "db_host": "",
+    "db_port": "",
     "db_name": "",
     "million_debillion": 0
 }

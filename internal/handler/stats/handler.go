@@ -7,7 +7,7 @@ import (
 
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler"
 
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/stats"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/stats"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 

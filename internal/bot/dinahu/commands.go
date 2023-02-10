@@ -16,7 +16,7 @@ import (
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/remove"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/sendnahu"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/handler/stats"
-	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/sqlite/repo/chat"
+	"github.com/1-Million-3-debillion/dinahu-bot/internal/storage/postgres/repo/chat"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
