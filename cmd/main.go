@@ -6,7 +6,6 @@ import (
 	initialize "github.com/1-Million-3-debillion/dinahu-bot/init"
 	"github.com/1-Million-3-debillion/dinahu-bot/internal/bot/dinahu"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func init() {

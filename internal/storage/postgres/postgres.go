@@ -28,6 +28,10 @@ func GetDB() *sqlx.DB {
 			log.Fatalf(failGetDb, err)
 		}
 
+		if err = db.Ping(); err != nil {
+			log.Fatal(err)
+		}
+
 		db.SetMaxOpenConns(5)
 	})
 
