@@ -19,9 +19,9 @@ var (
 func GetDB() *sqlx.DB {
 	onceDb.Do(func() {
 		var err error
-		cfg := config.GetConfig()
+		cfg := config.GetConfig().Postgres
 
-		dsn := "postgres://" + cfg.DbUser + ":" + cfg.DbPassword + "@" + cfg.DbHost + cfg.DbPort + "/" + cfg.DbName + "?sslmode=disable"
+		dsn := "postgres://" + cfg.User + ":" + cfg.Password + "@" + cfg.Host + cfg.Port + "/" + cfg.Name + "?sslmode=disable"
 
 		db, err = sqlx.Open("pgx", dsn)
 		if err != nil {

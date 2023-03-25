@@ -1,41 +1,46 @@
 package config
 
 import (
-	"encoding/json"
 	"log"
-	"os"
 	"sync"
+
+	"github.com/1-Million-3-debillion/dinahu-bot/tools/env"
+	"github.com/joho/godotenv"
 )
 
-const cfgPath string = "config.json"
+const cfgPath string = ".env"
 
 type Config struct {
-	DinahuToken      string `json:"dinahu_token"`
-	MillionDebillion int64  `json:"million_debillion"`
-	DbUser           string `json:"db_user"`
-	DbPassword       string `json:"db_password"`
-	DbHost           string `json:"db_host"`
-	DbPort           string `json:"db_port"`
-	DbName           string `json:"db_name"`
+	DinahuToken      string `env:"DINAHU_TOKEN"`
+	MillionDebillion int64  `env:"MILLION_DEBILLION"`
+	Postgres         struct {
+		User     string `env:"POSTGRES_USER"`
+		Password string `env:"POSTGRES_PASSWORD"`
+		Host     string `env:"POSTGRES_HOST"`
+		Port     string `env:"POSTGRES_PORT"`
+		Name     string `env:"POSTGRES_DB"`
+	}
 }
 
 var (
-	cfg     Config
+	cfg     = &Config{}
 	onceCfg sync.Once
 	fail    string = "GetConfig() failed: %v\n"
 )
 
 func GetConfig() *Config {
 	onceCfg.Do(func() {
-		data, err := os.ReadFile(cfgPath)
+		var err error
+		err = godotenv.Load(cfgPath)
 		if err != nil {
-			log.Fatalf(fail, err)
+			log.Fatal(err)
 		}
 
-		if err = json.Unmarshal(data, &cfg); err != nil {
-			log.Fatalf(fail, err)
+		err = env.Unmarshal(cfg)
+		if err != nil {
+			log.Fatal(err)
 		}
 	})
 
-	return &cfg
+	return cfg
 }
